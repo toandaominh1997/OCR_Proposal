@@ -11,6 +11,10 @@
 \usepackage{enumerate}
 \usepackage[utf8]{inputenc}
 \usepackage[top=1 in,bottom=1in, left=1 in, right=1 in]{geometry}
+\usepackage{multirow}
+\usepackage{colortbl}
+\definecolor{kugray5}{RGB}{224,224,224}
+ 
 
 %A bunch of definitions that make my life easier
 \newcommand{\matlab}{{\sc Matlab} }
@@ -100,17 +104,20 @@ Current, we have synthesis data from our company. After, I start collection data
 Description Dataset: Current, we have 402463 image.
 \subsubsection{Data Preprocessing}
 I have histogram of each input variable to get an idea of distribution: \newline
-\includegraphics[width=170mm,scale=0.7]{hist.png}
-At the words with index greater than 1900 are unbalanced data. Here, I have 2 solutions that solve this problem: 
+\includegraphics[width=170mm,scale=0.7]{histogramdataset.png}
+There are a few words in the dataset with uneven occurrences that cause imbalance in datasets. Here, I have 2 solutions that solve this problem: 
 \begin{itemize}
     \item Case 1: I will cut data have count word / max count word < 0.2. 
     \item Case 2: I will generate data from fonts or use a model GAN to generate many word have less distribution to balaced dataset. 
 \end{itemize}
 Data augmentation is problem need focus in preprocessing. Here, I will recommend a few techniques to handle the data like Smoothing images, scaling, Rotation, background noise. \subsubsection{Data Cleaning}
-I have checked file labels.json to check null in target data. And data with null does not exist. 
+I have checked file labels.json to check null in target data. And data with null does not exist.
 \subsection{Model Deployment}
 Based on the work of Shi, Baoguang, Xiang Bai, and Cong Yao. "An end-to-end trainable neural network for image-based sequence recognition and its application to scene text recognition."IEEE transactions on pattern analysis and machine intelligence39.11 (2017): 2298-2304.\cite{crnn}\cite{buildcrnn} \newline
-\includegraphics[width=170mm,scale=0.7]{crnn.png}
+\begin{center}
+    \includegraphics[width=400]{crnn.png}
+\end{center}
+
 The architecture consists of three parts from bottom to top: 
 \begin{enumerate}
     \item Convolutional layers, which extract a feature sequence from the input image 
@@ -166,14 +173,188 @@ In printed characters and handwriting recognition, label error rate(also called 
 \section{Experiments}
 \subsection{Datasets}
 For all the experiments for scene text recognition, we use the synthetic04 dataset from our company. The dataset contains 4 hundred thousand training images and their corresponding ground truth words.
-\subsection{Implementation Details}
+\subsection{Experiment Details}
 The architecture of the convolutional layers is based on the VGG-16 architectures.
 We implement the network within the Pytorch framework
 \subsubsection{Experiment 1: fixed size, non-fixed size}
+\begin{itemize}
+    \item Method:  Fixed the size of the image by resizing the image to 32x300. Not fixed image size by resizing image with keep ratio then adding padding to the right of image. 
+    \item Evaluation:\newline
+    \newline
+      \begin{tabular}{|c|c|c|c|c|c|c|c|}
+        \hline
+        \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&\multicolumn{4}{c|}{fixed size, non-fixed size}\\
+        \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&\multicolumn{2}{c|}{fixed size} & \multicolumn{2}{c|}{non-fixed size}\\
+        \arrayrulecolor{kugray5}
+        \arrayrulecolor{black}
+        \cline{3-6}
+        \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&by char&by field&by char& by field\\
+        \hline
+        \multirow{2}{*}{10\% of dataset}
+                    & train & 33.5 & 0.0 & 31.4 & 0.0\\
+        \cline{2-6}
+                    & validation & 26.6 & 0.0 & 21.9 & 0.0\\
+        \hline
+        \hline
+      \end{tabular}
+    \item Result:
+\end{itemize}
 
-Use fixed size of all dataset(32x300)
-\subsubsection{Experiment 2}
-Use non-fixed size for dataset by each batch size 
+\subsubsection{Experiment 2: Change height}
+\begin{itemize}
+    \item Method:  I choose the default height of 32, then I increase the height to 64. 
+    \item Evaluation:\newline
+    \newline
+      \begin{tabular}{|c|c|c|c|c|c|c|c|}
+        \hline
+        \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&\multicolumn{4}{c|}{fixed size, non-fixed size}\\
+        \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&\multicolumn{2}{c|}{fixed size} & \multicolumn{2}{c|}{non-fixed size}\\
+        \arrayrulecolor{kugray5}
+        \arrayrulecolor{black}
+        \cline{3-6}
+        \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&by char&by field&by char& by field\\
+        \hline
+        \multirow{2}{*}{10\% of dataset}
+                    & train & 33.5 & 0.0 & 31.4 & 0.0\\
+        \cline{2-6}
+                    & validation & 26.6 & 0.0 & 21.9 & 0.0\\
+        \hline
+        \hline
+      \end{tabular}
+    \item Result:
+\end{itemize}
+\subsubsection{Experiment 3: Learning rate}
+\begin{itemize}
+    \item Method: I choose the default learning rate of 0.0001, then I increase the learning rate to 0.001.
+    \item Evaluation:\newline
+    \newline
+      \begin{tabular}{|c|c|c|c|c|c|c|c|}
+        \hline
+        \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&\multicolumn{4}{c|}{fixed size, non-fixed size}\\
+        \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&\multicolumn{2}{c|}{fixed size} & \multicolumn{2}{c|}{non-fixed size}\\
+        \arrayrulecolor{kugray5}
+        \arrayrulecolor{black}
+        \cline{3-6}
+        \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&by char&by field&by char& by field\\
+        \hline
+        \multirow{2}{*}{10\% of dataset}
+                    & train & 33.5 & 0.0 & 31.4 & 0.0\\
+        \cline{2-6}
+                    & validation & 26.6 & 0.0 & 21.9 & 0.0\\
+        \hline
+        \hline
+      \end{tabular}
+    \item Result:
+\end{itemize}
+\subsubsection{Experiment 4: Freeze cnn, Freeze rnn}
+\begin{itemize}
+    \item Method: I will train models with full crnn in 10 epochs. Then, taking the weight of the model to the next 10 epoch, I freeze the crnn or rnn(not train cnn or rnn) in CRNN network. 
+    \item Evaluation:\newline
+    \newline
+      \begin{tabular}{|c|c|c|c|c|c|c|c|}
+        \hline
+        \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&\multicolumn{4}{c|}{fixed size, non-fixed size}\\
+        \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&\multicolumn{2}{c|}{fixed size} & \multicolumn{2}{c|}{non-fixed size}\\
+        \arrayrulecolor{kugray5}
+        \arrayrulecolor{black}
+        \cline{3-6}
+        \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&by char&by field&by char& by field\\
+        \hline
+        \multirow{2}{*}{10\% of dataset}
+                    & train & 33.5 & 0.0 & 31.4 & 0.0\\
+        \cline{2-6}
+                    & validation & 26.6 & 0.0 & 21.9 & 0.0\\
+        \hline
+        \hline
+      \end{tabular}
+    \item Result:
+\end{itemize}
+\subsubsection{Experiment 5: Add attention}
+
+\subsubsection{Experiment 6: Remove rnn only train cnn by densenet121 + CTC Loss}
+\begin{itemize}
+    \item Method: I use model Densenet + CTC Loss. Detail at here:
+    \newline
+    \includegraphics[width=160mm]{densenet_ctc.png}
+    \item Evaluation:\newline
+     \newline
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+            \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&\multicolumn{2}{c|}{Densenet+ CTC}\\
+            \arrayrulecolor{kugray5}
+            \arrayrulecolor{black}
+            \cline{3-4}
+            \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&by char&by field\\
+            \hline
+            \multirow{2}{*}{full of dataset}
+                        & train & 97.97 & 86.06\\
+            \cline{2-4}
+                        & validation & 87.26 & 64.72\\
+            \hline
+            \hline
+        \end{tabular}
+    \item Result:
+\end{itemize}
+\subsubsection{Experiment 7: Shuffle and non Shuffle}
+\begin{itemize}
+    \item Method: The first, sort all line images in training set based on the length of label text. Next, training with three methods: 
+    \item Evaluation:
+    \begin{enumerate}
+        \item Do not shuffle the training set
+        \newline
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+            \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&\multicolumn{2}{c|}{not shuffle}\\
+            \arrayrulecolor{kugray5}
+            \arrayrulecolor{black}
+            \cline{3-4}
+            \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&by char&by field\\
+            \hline
+            \multirow{2}{*}{10\% of dataset}
+                        & train & 33.5 & 0.0\\
+            \cline{2-4}
+                        & validation & 26.6 & 0.0\\
+            \hline
+            \hline
+        \end{tabular}
+        \item Shuffle the training set after 2 epoch
+        \newline
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+            \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&\multicolumn{2}{c|}{shuffle after 2 epoch}\\
+            \arrayrulecolor{kugray5}
+            \arrayrulecolor{black}
+            \cline{3-4}
+            \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&by char&by field\\
+            \hline
+            \multirow{2}{*}{10\% of dataset}
+                        & train & 33.5 & 0.0\\
+            \cline{2-4}
+                        & validation & 26.6 & 0.0\\
+            \hline
+            \hline
+        \end{tabular}
+        \item Shuffle at the beginning of training process
+                \newline
+        \begin{tabular}{|c|c|c|c|}
+            \hline
+            \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&\multicolumn{2}{c|}{shuffle}\\
+            \arrayrulecolor{kugray5}
+            \arrayrulecolor{black}
+            \cline{3-4}
+            \multicolumn{2}{|>{\columncolor{kugray5}}c|}{}&by char&by field\\
+            \hline
+            \multirow{2}{*}{10\% of dataset}
+                        & train & 33.5 & 0.0\\
+            \cline{2-4}
+                        & validation & 26.6 & 0.0\\
+            \hline
+            \hline
+        \end{tabular}
+    \end{enumerate}
+    \item Result:
+\end{itemize}
+\subsubsection{Experiment 8: Train full dataset}
 
 \subsection{Comparative Evaluation}
 
